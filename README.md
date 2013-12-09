@@ -1,5 +1,9 @@
 # mio-ajax
 
+[![Build Status](https://secure.travis-ci.org/alexmingoia/mio-ajax.png?branch=master)](http://travis-ci.org/alexmingoia/mio-ajax)
+[![Dependency Status](https://david-dm.org/alexmingoia/mio-ajax.png)](http://david-dm.org/alexmingoia/mio-ajax)
+[![Coverage Status](https://coveralls.io/repos/alexmingoia/mio-ajax/badge.png?branch=master)](https://coveralls.io/r/alexmingoia/mio-ajax?branch=master)
+
 Provides an AJAX storage plugin for [Mio](https://github.com/mio/mio).
 
 ## Installation
