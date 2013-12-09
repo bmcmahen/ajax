@@ -1,0 +1,22 @@
+{
+  "name": "mio-ajax",
+  "repo": "alexmingoia/mio-ajax",
+  "description": "AJAX storage plugin for Mio.",
+  "version": "0.1.0",
+  "keywords": [
+    "mio",
+    "sync",
+    "ajax"
+  ],
+  "dependencies": {
+    "alexmingoia/mio": "*",
+    "visionmedia/superagent": "*",
+    "visionmedia/node-querystring": "0.6.6",
+    "segmentio/extend": "*"
+  },
+  "main": "./lib/ajax.js",
+  "scripts": [
+    "lib/ajax.js"
+  ],
+  "license": "MIT"
+}

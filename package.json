@@ -1,0 +1,28 @@
+{
+  "name": "mio-ajax",
+  "version": "0.1.0",
+  "description": "AJAX storage plugin for Mio.",
+  "author": "Alexander Mingoia",
+  "keywords": [
+    "mio",
+    "sync",
+    "ajax"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mio/ajax.git"
+  },
+  "main": "./lib/ajax",
+  "devDependencies": {
+    "mio": ">=0.1.0",
+    "extend": "~1.2.1",
+    "superagent": "~0.15.7",
+    "expect.js": "~0.2.0",
+    "component": "~0.18.0",
+    "mocha": "~1.15.1"
+  },
+  "scripts": {
+    "test": "node_modules/mocha/bin/mocha test"
+  },
+  "license": "MIT"
+}
