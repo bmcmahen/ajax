@@ -1,10 +1,11 @@
 var expect = require('expect.js');
 var superagent = require('superagent');
+var ajax = process.env.JSCOV ? require('../lib-cov/ajax') : require('../lib/ajax');
 
 var User = require('mio').createModel('User')
   .attr('id', { primary: true })
   .attr('name')
-  .use(require('../lib/ajax'), '/users');
+  .use(ajax, '/users');
 
 describe("AJAX storage plugin", function() {
   it("sets the base url", function() {

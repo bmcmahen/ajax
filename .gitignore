@@ -1,4 +1,4 @@
-components
-build
-node_modules
-lib-cov
+components/
+build/
+node_modules/
+lib-cov/
