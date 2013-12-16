@@ -12,6 +12,36 @@ describe("AJAX storage plugin", function() {
     expect(User.options.baseUrl).to.be('/users');
   });
 
+  it('retries failed requests', function(done) {
+      var get = superagent.get;
+      var superagentApi = {
+        abort: function() {return this;},
+        query: function(query) {
+          expect(query).to.eql({});
+          return this;
+        },
+        set: function () { return this; },
+        end: function(cb) { cb(new Error('test')); }
+      };
+      superagent.get = function(url) {
+        expect(url).to.be('/users');
+        return superagentApi;
+      };
+      User.once('ajax error', function(error, retry) {
+        expect(retry).to.be.a('function');
+        superagentApi.end = function(cb) {
+          cb(null, [{}]);
+        };
+        retry();
+      });
+      User.all(function(err, users) {
+        if (users) {
+          superagent.get = get;
+          done();
+        }
+      });
+  });
+
   describe(".findAll()", function() {
     it("does a GET request to the base url", function(done) {
       var get = superagent.get;
@@ -21,7 +51,7 @@ describe("AJAX storage plugin", function() {
           return this;
         },
         set: function () { return this; },
-        end: function(cb) { cb([{}]); }
+        end: function(cb) { cb(null, [{}]); }
       };
       superagent.get = function(url) {
         expect(url).to.be('/users');
@@ -42,7 +72,7 @@ describe("AJAX storage plugin", function() {
           return this;
         },
         set: function () { return this; },
-        end: function(cb) { cb({}); }
+        end: function(cb) { cb(null, {}); }
       };
       superagent.get = function(url) {
         expect(url).to.be('/users');
@@ -63,7 +93,7 @@ describe("AJAX storage plugin", function() {
           expect(header).to.have.property('Accept', 'application/json');
           return this;
         },
-        end: function(cb) { cb({error: null, body: [{id: "0", name: "Bob"}, {id: "1", name: "Tobi"}]}); }
+        end: function(cb) { cb(null, {error: null, body: [{id: "0", name: "Bob"}, {id: "1", name: "Tobi"}]}); }
       };
       superagent.get = function(url) {
         return superagentApi;
@@ -81,9 +111,7 @@ describe("AJAX storage plugin", function() {
         query: function() { return this; },
         set: function () { return this; },
         end: function(cb) {
-          cb({error: null, body: {
-            data: [{id: 0, name: "Bob"}, {id: 1, name: "Tobi"}]}
-          });
+          cb(null, {error: null, body: [{id: 0, name: "Bob"}, {id: 1, name: "Tobi"}]});
         }
       };
       superagent.get = function(url) {
@@ -103,7 +131,7 @@ describe("AJAX storage plugin", function() {
       var superagentApi = {
         query: function() { return this; },
         set: function () { return this; },
-        end: function(cb) { cb({error: true, body: undefined}); }
+        end: function(cb) { cb(null, {error: true, body: undefined}); }
       };
       superagent.get = function(url) {
         return superagentApi;
@@ -116,18 +144,18 @@ describe("AJAX storage plugin", function() {
       });
     });
 
-    it('emits "ajax all" event', function(done) {
+    it('emits "ajax response" event', function(done) {
       var get = superagent.get;
       var superagentApi = {
         type:  function () { return this; },
         query: function() { return this; },
         set: function () { return this; },
-        end: function(cb) { cb([]); }
+        end: function(cb) { cb(null, []); }
       };
       superagent.get = function(url) {
         return superagentApi;
       };
-      User.once('ajax all', function(res) {
+      User.once('ajax response', function(res) {
         superagent.get = get;
         expect(res).to.be.an('array');
         done();
@@ -141,7 +169,7 @@ describe("AJAX storage plugin", function() {
         type:  function () { return this; },
         query: function() { return this; },
         set: function () { return this; },
-        end: function(cb) { cb([]); }
+        end: function(cb) { cb(null, []); }
       };
       superagent.get = function(url) {
         return superagentApi;
@@ -161,14 +189,38 @@ describe("AJAX storage plugin", function() {
       var get = superagent.get;
       var superagentApi = {
         set: function () { return this; },
-        end: function(cb) { cb({}); }
+        end: function(cb) { cb(null, {}); }
       };
       superagent.get = function(url) {
         expect(url).to.be('/users/1');
         return superagentApi;
       };
 
+      var find = User.find;
+      User.get = function(extras, cb) {
+        User.adapter.find.call(User, 1, cb);
+        User.get = find;
+      };
       User.get(1, function() {
+        superagent.get = get;
+        done();
+      });
+    });
+
+    it('supports extra query parameters', function(done) {
+      var get = superagent.get;
+      var superagentApi = {
+        set: function () { return this; },
+        query: function(query) { return this; },
+        end: function(cb) { cb(null, {error: null, body: {id: 1, name: "Bob"}}); }
+      };
+      superagent.get = function(url) {
+        return superagentApi;
+      };
+
+      User.get({ id: 1, post_id: 2 }, function(err, body) {
+        expect(err).to.be(null);
+        expect(body).to.have.property('id', 1);
         superagent.get = get;
         done();
       });
@@ -178,7 +230,7 @@ describe("AJAX storage plugin", function() {
       var get = superagent.get;
       var superagentApi = {
         set: function () { return this; },
-        end: function(cb) { cb({error: null, body: {id: 1, name: "Bob"}}); }
+        end: function(cb) { cb(null, {error: null, body: {id: 1, name: "Bob"}}); }
       };
       superagent.get = function(url) {
         return superagentApi;
@@ -199,7 +251,7 @@ describe("AJAX storage plugin", function() {
           expect(header).to.have.property('Accept', 'application/json');
           return this;
         },
-        end: function(cb) { cb({error: null, body: {id: 1, name: "Bob"}}); }
+        end: function(cb) { cb(null, {error: null, body: {id: 1, name: "Bob"}}); }
       };
       superagent.get = function(url) {
         return superagentApi;
@@ -217,31 +269,39 @@ describe("AJAX storage plugin", function() {
       var get = superagent.get;
       var superagentApi = {
         set: function () { return this; },
-        end: function(cb) { cb({error: true, body: undefined}); }
+        end: function(cb) {
+          cb(null, {
+            error: new Error('test'),
+            body: {
+              status: 401,
+              message: 'body message'
+            }
+          });
+        }
       };
       superagent.get = function(url) {
         return superagentApi;
       };
 
       User.get(1, function(err, body) {
-        expect(err).to.be(true);
+        expect(err).to.have.property('message', 'body message');
         superagent.get = get;
         done();
       });
     });
 
-    it('emits "ajax get" event', function(done) {
+    it('emits "ajax response" event', function(done) {
       var get = superagent.get;
       var superagentApi = {
         type:  function () { return this; },
         set: function () { return this; },
-        end: function(cb) { cb({ body: {id: 1} }); }
+        end: function(cb) { cb(null, { body: {id: 1} }); }
       };
       superagent.get = function(url) {
         expect(url).to.be('/users/1');
         return superagentApi;
       };
-      User.once('ajax get', function(res) {
+      User.once('ajax response', function(res) {
         superagent.get = get;
         expect(res).to.have.property('body');
         expect(res.body).to.have.property('id', 1);
@@ -255,7 +315,7 @@ describe("AJAX storage plugin", function() {
       var superagentApi = {
         type:  function () { return this; },
         set: function () { return this; },
-        end: function(cb) { cb({ body: {id: 1} }); }
+        end: function(cb) { cb(null, { body: {id: 1} }); }
       };
       superagent.get = function(url) {
         expect(url).to.be('/users/1');
@@ -279,7 +339,7 @@ describe("AJAX storage plugin", function() {
           return this;
         },
         set: function () { return this; },
-        end: function(cb) { cb({}); }
+        end: function(cb) { cb(null, {}); }
       };
       superagent.del = function(url) {
         expect(url).to.be('/users');
@@ -300,7 +360,7 @@ describe("AJAX storage plugin", function() {
           return this;
         },
         set: function () { return this; },
-        end: function(cb) { cb({}); }
+        end: function(cb) { cb(null, {}); }
       };
       superagent.del = function(url) {
         expect(url).to.be('/users');
@@ -324,7 +384,7 @@ describe("AJAX storage plugin", function() {
           expect(header).to.have.property('Accept', 'application/json');
           return this;
         },
-        end: function(cb) { cb({}); }
+        end: function(cb) { cb(null, {}); }
       };
       superagent.del = function(url) {
         expect(url).to.be('/users');
@@ -341,7 +401,7 @@ describe("AJAX storage plugin", function() {
       var superagentApi = {
         query: function() { return this; },
         set: function () { return this; },
-        end: function(cb) { cb({error: true}); }
+        end: function(cb) { cb(null, {error: true}); }
       };
       superagent.del = function(url) {
         return superagentApi;
@@ -354,18 +414,18 @@ describe("AJAX storage plugin", function() {
       });
     });
 
-    it('emits "ajax removeAll" event', function(done) {
+    it('emits "ajax response" event', function(done) {
       var del = superagent.del;
       var superagentApi = {
         type:  function () { return this; },
         query: function() { return this; },
         set: function () { return this; },
-        end: function(cb) { cb({ status: 204 }); }
+        end: function(cb) { cb(null, { status: 204 }); }
       };
       superagent.del = function(url) {
         return superagentApi;
       };
-      User.once('ajax removeAll', function(res) {
+      User.once('ajax response', function(res) {
         superagent.del = del;
         expect(res).to.have.property('status', 204);
         done();
@@ -379,7 +439,7 @@ describe("AJAX storage plugin", function() {
         type:  function () { return this; },
         query: function() { return this; },
         set: function () { return this; },
-        end: function(cb) { cb({ status: 204 }); }
+        end: function(cb) { cb(null, { status: 204 }); }
       };
       superagent.del = function(url) {
         return superagentApi;
@@ -399,7 +459,7 @@ describe("AJAX storage plugin", function() {
       var superagentApi = {
         set:  function () { return this; },
         send: function () { return this; },
-        end:  function(cb) { cb({}); }
+        end:  function(cb) { cb(null, {}); }
       };
       superagent.post = function(url) {
         expect(url).to.be('/users');
@@ -422,7 +482,7 @@ describe("AJAX storage plugin", function() {
           expect(data).to.have.property('name', 'Bob');
           return this;
         },
-        end:  function(cb) { cb({}); }
+        end:  function(cb) { cb(null, {}); }
       };
       superagent.post = function(url) {
         return superagentApi;
@@ -441,7 +501,7 @@ describe("AJAX storage plugin", function() {
       var superagentApi = {
         set:  function () { return this; },
         send: function () { return this; },
-        end:  function(cb) { cb({body: {id: 513}}); }
+        end:  function(cb) { cb(null, {body: {id: 513}}); }
       };
       superagent.post = function(url) {
         return superagentApi;
@@ -464,7 +524,7 @@ describe("AJAX storage plugin", function() {
           return this;
         },
         send: function () { return this; },
-        end:  function(cb) { cb({body: {id: 513}}); }
+        end:  function(cb) { cb(null, {body: {id: 513}}); }
       };
       superagent.post = function(url) {
         return superagentApi;
@@ -484,7 +544,7 @@ describe("AJAX storage plugin", function() {
       var superagentApi = {
         set:  function () { return this; },
         send: function () { return this; },
-        end:  function(cb) { cb({error: true}); }
+        end:  function(cb) { cb(null, {error: true}); }
       };
       superagent.post = function(url) {
         return superagentApi;
@@ -499,19 +559,19 @@ describe("AJAX storage plugin", function() {
       });
     });
 
-    it('emits "ajax save" event', function(done) {
+    it('emits "ajax response" event', function(done) {
       var post = superagent.post;
       var superagentApi = {
         set:  function () { return this; },
         send: function () { return this; },
-        end:  function(cb) { cb({body: {id: 513}}); }
+        end:  function(cb) { cb(null, {body: {id: 513}}); }
       };
       superagent.post = function(url) {
         return superagentApi;
       };
       var user = new User();
       user.name = 'Bob';
-      User.once('ajax save', function(res) {
+      User.once('ajax response', function(res) {
         superagent.post = post;
         expect(res).to.have.property('body');
         expect(res.body).to.have.property('id', 513);
@@ -525,7 +585,7 @@ describe("AJAX storage plugin", function() {
       var superagentApi = {
         set:  function () { return this; },
         send: function () { return this; },
-        end:  function(cb) { cb({body: {id: 513}}); }
+        end:  function(cb) { cb(null, {body: {id: 513}}); }
       };
       superagent.post = function(url) {
         return superagentApi;
@@ -547,7 +607,7 @@ describe("AJAX storage plugin", function() {
       var superagentApi = {
         set:  function () { return this; },
         send: function () { return this; },
-        end:  function(cb) { cb({}); }
+        end:  function(cb) { cb(null, {}); }
       };
       superagent.put = function(url) {
         expect(url).to.be('/users/1');
@@ -570,7 +630,7 @@ describe("AJAX storage plugin", function() {
           expect(data).to.have.property('name', 'Bob');
           return this;
         },
-        end:  function(cb) { cb({}); }
+        end:  function(cb) { cb(null, {}); }
       };
       superagent.put = function(url) {
         return superagentApi;
@@ -589,7 +649,7 @@ describe("AJAX storage plugin", function() {
       var superagentApi = {
         set:  function () { return this; },
         send: function () { return this; },
-        end:  function(cb) { cb({body: {name: "Bobby"}}); }
+        end:  function(cb) { cb(null, {body: {name: "Bobby"}}); }
       };
       superagent.put = function(url) {
         return superagentApi;
@@ -612,7 +672,7 @@ describe("AJAX storage plugin", function() {
           return this;
         },
         send: function () { return this; },
-        end:  function(cb) { cb({body: {name: "Bobby"}}); }
+        end:  function(cb) { cb(null, {body: {name: "Bobby"}}); }
       };
       superagent.put = function(url) {
         return superagentApi;
@@ -632,7 +692,7 @@ describe("AJAX storage plugin", function() {
       var superagentApi = {
         set:  function () { return this; },
         send: function () { return this; },
-        end:  function(cb) { cb({error: true}); }
+        end:  function(cb) { cb(null, {error: true}); }
       };
       superagent.put = function(url) {
         return superagentApi;
@@ -647,12 +707,12 @@ describe("AJAX storage plugin", function() {
       });
     });
 
-    it('emits "ajax update" event', function(done) {
+    it('emits "ajax response" event', function(done) {
       var put = superagent.put;
       var superagentApi = {
         set:  function () { return this; },
         send: function () { return this; },
-        end:  function(cb) { cb({body: {name: "Bobby"}}); }
+        end:  function(cb) { cb(null, {body: {name: "Bobby"}}); }
       };
       superagent.put = function(url) {
         return superagentApi;
@@ -660,7 +720,7 @@ describe("AJAX storage plugin", function() {
 
       var user = new User({id: "123"});
       user.name = 'Bob';
-      User.once('ajax update', function(res) {
+      User.once('ajax response', function(res) {
         superagent.put = put;
         expect(res.body.name).to.be("Bobby");
         done();
@@ -673,7 +733,7 @@ describe("AJAX storage plugin", function() {
       var superagentApi = {
         set:  function () { return this; },
         send: function () { return this; },
-        end:  function(cb) { cb({body: {name: "Bobby"}}); }
+        end:  function(cb) { cb(null, {body: {name: "Bobby"}}); }
       };
       superagent.put = function(url) {
         return superagentApi;
@@ -696,7 +756,7 @@ describe("AJAX storage plugin", function() {
       var superagentApi = {
         set:  function () { return this; },
         send: function () { return this; },
-        end:  function(cb) { cb({}); }
+        end:  function(cb) { cb(null, {}); }
       };
       superagent.del = function(url, cb) {
         expect(url).to.be('/users/123');
@@ -718,7 +778,7 @@ describe("AJAX storage plugin", function() {
           return this;
         },
         send: function () { return this; },
-        end:  function(cb) { cb({}); }
+        end:  function(cb) { cb(null, {}); }
       };
       superagent.del = function(url, cb) {
         expect(url).to.be('/users/123');
@@ -737,7 +797,7 @@ describe("AJAX storage plugin", function() {
       var superagentApi = {
         set:  function () { return this; },
         send: function () { return this; },
-        end:  function(cb) { cb({error: true}); }
+        end:  function(cb) { cb(null, {error: true}); }
       };
       superagent.del = function(url, cb) {
         return superagentApi;
@@ -751,19 +811,19 @@ describe("AJAX storage plugin", function() {
       });
     });
 
-    it('emits "ajax remove" event', function(done) {
+    it('emits "ajax response" event', function(done) {
       var del = superagent.del;
       var superagentApi = {
         set:  function () { return this; },
         send: function () { return this; },
-        end:  function(cb) { cb({ status: 204 }); }
+        end:  function(cb) { cb(null, { status: 204 }); }
       };
       superagent.del = function(url, cb) {
         return superagentApi;
       };
 
       var user = new User({id: "123"});
-      User.once('ajax remove', function(res) {
+      User.once('ajax response', function(res) {
         superagent.del = del;
         expect(res).to.have.property('status', 204);
         done();
@@ -776,7 +836,7 @@ describe("AJAX storage plugin", function() {
       var superagentApi = {
         set:  function () { return this; },
         send: function () { return this; },
-        end:  function(cb) { cb({ status: 204 }); }
+        end:  function(cb) { cb(null, { status: 204 }); }
       };
       superagent.del = function(url, cb) {
         return superagentApi;

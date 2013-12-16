@@ -1,8 +1,9 @@
 # mio-ajax
 
 [![Build Status](https://secure.travis-ci.org/alexmingoia/mio-ajax.png?branch=master)](http://travis-ci.org/alexmingoia/mio-ajax)
-[![Dependency Status](https://david-dm.org/alexmingoia/mio-ajax.png)](http://david-dm.org/alexmingoia/mio-ajax)
 [![Coverage Status](https://coveralls.io/repos/alexmingoia/mio-ajax/badge.png?branch=master)](https://coveralls.io/r/alexmingoia/mio-ajax?branch=master)
+[![Dependency Status](https://david-dm.org/alexmingoia/mio-ajax.png)](http://david-dm.org/alexmingoia/mio-ajax)
+[![NPM version](https://badge.fury.io/js/mio-ajax.png)](http://badge.fury.io/js/mio-ajax)
 
 Provides an AJAX storage plugin for [Mio](https://github.com/mio/mio).
 
@@ -69,6 +70,22 @@ This would make it so that the following routes were used:
     UPDATE ->  PUT /api/v1/users/:username
     REMOVE ->  DEL /api/v1/users/:username
 
+### Retrying requests
+
+You can use the `retry` function passed to the `ajax error` event to retry
+requests.
+
+```javascript
+User.on('ajax error', function(err, retry) {
+  if (err.status == 401) {
+    refreshAccessToken(function(token) {
+      setToken(token);
+      retry();
+    });
+  }
+});
+```
+
 ### Events
 
 #### ajax request
@@ -82,12 +99,12 @@ User.on('ajax request', function(req) {
 });
 ```
 
-#### ajax all
+#### ajax response
 
-Emitted before `Model.all()` instantiates the model instances.
+Emitted after the XHR request is complete.
 
 ```javascript
-User.on('ajax all', function(res) {
+User.on('ajax response', function(res) {
   var users = res.body.results;
   // Convert JSON string dates into actual dates
   users.forEach(u) {
@@ -97,31 +114,22 @@ User.on('ajax all', function(res) {
 });
 ```
 
-#### ajax get
+#### ajax error
 
-Emitted before `Model.get()` instantiates the model instance.
+Emitted on XHR error and 4xx or 5xx responses, with an `Error` as the first
+argument and a `retry` function as the second argument.
+
+If executed, the retry function will retry the request and execute the
+original callback once the request is complete. If a new callback is supplied to
+`retry()` then that will be used when the retried request completes.
 
 ```javascript
-User.on('ajax get', function(res) {
-  res.body.registeredAt = new Date(res.body.registeredAt);
+User.on('ajax error', function(err, retry) {
+  if (err.status == 401) {
+    refreshAccessToken(retry);
+  }
 });
 ```
-
-#### ajax removeAll
-
-Emitted before `Model.removeAll()` passes response to callback.
-
-#### ajax save
-
-Emitted before `model.save()` passes response to callback.
-
-#### ajax update
-
-Emitted before `model.update()` passes response to callback.
-
-#### ajax remove
-
-Emitted before `model.remove()` passes response to callback.
 
 ## Contributors
 
