@@ -2,17 +2,24 @@
 
 [![Build Status](https://secure.travis-ci.org/alexmingoia/mio-ajax.png?branch=master)](http://travis-ci.org/alexmingoia/mio-ajax)
 [![Coverage Status](https://coveralls.io/repos/alexmingoia/mio-ajax/badge.png?branch=master)](https://coveralls.io/r/alexmingoia/mio-ajax?branch=master)
-[![Dependency Status](https://david-dm.org/alexmingoia/mio-ajax.png)](http://david-dm.org/alexmingoia/mio-ajax)
+[![Bower version](https://badge.fury.io/bo/mio-ajax.png)](http://badge.fury.io/bo/mio-ajax)
 [![NPM version](https://badge.fury.io/js/mio-ajax.png)](http://badge.fury.io/js/mio-ajax)
+[![Dependency Status](https://david-dm.org/alexmingoia/mio-ajax.png)](http://david-dm.org/alexmingoia/mio-ajax)
 
 Provides an AJAX storage plugin for [Mio](https://github.com/mio/mio).
 
 ## Installation
 
-Install using [component](https://github.com/component/component/):
+Using [component](https://github.com/component/component/):
 
 ```sh
 component install mio/mio-ajax
+```
+
+Using [bower](http://bower.io/):
+
+```sh
+bower install mio-ajax
 ```
 
 ## Usage
