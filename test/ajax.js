@@ -183,6 +183,126 @@ describe("AJAX storage plugin", function() {
     });
   });
 
+  describe(".count()", function() {
+    it("does a GET request to the base url", function(done) {
+      var get = superagent.get;
+      var superagentApi = {
+        query: function(query) {
+          expect(query).to.eql({});
+          return this;
+        },
+        set: function () { return this; },
+        end: function(cb) { cb(null, [{}]); }
+      };
+      superagent.get = function(url) {
+        expect(url).to.be('/users/count');
+        return superagentApi;
+      };
+
+      User.count(function() {
+        superagent.get = get;
+        done();
+      });
+    });
+
+    it("passes query to superagent", function(done) {
+      var get = superagent.get;
+      var superagentApi = {
+        query: function(query) {
+          expect(query).to.eql({ name: "bob" });
+          return this;
+        },
+        set: function () { return this; },
+        end: function(cb) { cb(null, {}); }
+      };
+      superagent.get = function(url) {
+        expect(url).to.be('/users/count');
+        return superagentApi;
+      };
+
+      User.count({ name: "bob" }, function() {
+        superagent.get = get;
+        done();
+      });
+    });
+
+    it("sets header for request", function(done) {
+      var get = superagent.get;
+      var superagentApi = {
+        query: function() { return this; },
+        set: function (header) {
+          expect(header).to.have.property('Accept', 'application/json');
+          return this;
+        },
+        end: function(cb) { cb(null, {error: null, body: null}); }
+      };
+      superagent.get = function(url) {
+        return superagentApi;
+      };
+      User.count(function(err, body) {
+        expect(err).to.be(null);
+        superagent.get = get;
+        done();
+      });
+    });
+
+    it("passes along errors from superagent", function(done) {
+      var get = superagent.get;
+      var superagentApi = {
+        query: function() { return this; },
+        set: function () { return this; },
+        end: function(cb) { cb(null, {error: true, body: undefined}); }
+      };
+      superagent.get = function(url) {
+        return superagentApi;
+      };
+
+      User.count(function(err, body) {
+        expect(err).to.be(true);
+        superagent.get = get;
+        done();
+      });
+    });
+
+    it('emits "ajax response" event', function(done) {
+      var get = superagent.get;
+      var superagentApi = {
+        type:  function () { return this; },
+        query: function() { return this; },
+        set: function () { return this; },
+        end: function(cb) { cb(null, 2); }
+      };
+      superagent.get = function(url) {
+        return superagentApi;
+      };
+      User.once('ajax response', function(res) {
+        superagent.get = get;
+        expect(res).to.be.a('number');
+        done();
+      });
+      User.count(function() {});
+    });
+
+    it('emits "ajax request" event', function(done) {
+      var get = superagent.get;
+      var superagentApi = {
+        type:  function () { return this; },
+        query: function() { return this; },
+        set: function () { return this; },
+        end: function(cb) { cb(null, []); }
+      };
+      superagent.get = function(url) {
+        return superagentApi;
+      };
+      User.once('ajax request', function(req) {
+        superagent.get = get;
+        expect(req).to.have.keys('type', 'query', 'set', 'end');
+        done();
+      });
+      User.count(function() {});
+    });
+  });
+
   describe(".find()", function() {
 
     it("does a GET request to the base url with the ID", function(done) {
