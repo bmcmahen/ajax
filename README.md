@@ -48,34 +48,34 @@ The example above would expect the following API:
 You can specify alternative routes by passing in a second optional argument to
 `mio-ajax`.
 
-The default urls looks like the following:
+The default urls look like:
 
 ```javascript
 var urlMap = {
-  create:     '',
-  list:       '',
-  read:       '/:primary',
-  remove:     '/:primary',
-  removeAll:  '',
-  update:     '/:primary'
+  index:   '',
+  count:   '/count',
+  create:  '',
+  show:    '/:primary',
+  update:  '/:primary'
+  destroy: '/:primary',
 };
 ```
 
 Override them if needed:
 
 ```javascript
-User.use('browser', require('mio-ajax'), '/api/v1/users', {
-  read:   '/:username',
-  update: '/:username',
-  remove: '/:username'
+User.use('browser', 'mio-ajax', '/people', {
+  show:    '/:username',
+  update:  '/:username',
+  destroy: '/:username'
 });
 ```
 
 This would make it so that the following routes were used:
 
-    READ   ->  GET /api/v1/users/:username
-    UPDATE ->  PUT /api/v1/users/:username
-    REMOVE ->  DEL /api/v1/users/:username
+    SHOW    ->  GET /people/:username
+    UPDATE  ->  PUT /people/:username
+    DESTROY ->  DEL /people/:username
 
 ### Retrying requests
 

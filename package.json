@@ -1,23 +1,17 @@
 {
   "name": "mio-ajax",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "AJAX storage plugin for Mio.",
   "author": "Alexander Mingoia",
-  "keywords": [
-    "mio",
-    "sync",
-    "plugin",
-    "store",
-    "ajax"
-  ],
   "repository": {
     "type": "git",
     "url": "git://github.com/mio/ajax.git"
   },
   "main": "./lib/ajax",
   "devDependencies": {
-    "mio": "~0.1.x",
-    "extend": "~1.2.1",
+    "superagent": "~0.15.7",
+    "querystring": "git://github.com/visionmedia/node-querystring.git#0.6.6",
+    "mio": "~0.3.x",
     "expect.js": "~0.2.0",
     "component": "~0.18.0",
     "mocha": "~1.15.1",
@@ -29,8 +23,12 @@
     "prepublish": "./node_modules/jscoverage/bin/jscoverage lib lib-cov",
     "test": "node ./lib/test-runner.js"
   },
-  "license": "MIT",
-  "dependencies": {
-    "superagent": "~0.15.7"
-  }
+  "keywords": [
+    "mio",
+    "sync",
+    "plugin",
+    "store",
+    "ajax"
+  ],
+  "license": "MIT"
 }
