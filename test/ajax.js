@@ -68,7 +68,7 @@ describe("AJAX storage plugin", function() {
       var get = superagent.get;
       var superagentApi = {
         query: function(query) {
-          expect(query).to.eql({ name: "bob" });
+          expect(query).to.eql('name=bob');
           return this;
         },
         set: function () { return this; },
@@ -209,7 +209,7 @@ describe("AJAX storage plugin", function() {
       var get = superagent.get;
       var superagentApi = {
         query: function(query) {
-          expect(query).to.eql({ name: "bob" });
+          expect(query).to.eql('name=bob');
           return this;
         },
         set: function () { return this; },
