@@ -1,11 +1,23 @@
-var expect = require('expect.js');
-var superagent = require('superagent');
 var ajax = process.env.JSCOV ? require('../lib-cov/ajax') : require('../lib/ajax');
+var expect = require('expect.js');
+var mio = require('mio');
+var superagent = require('superagent');
 
-var User = require('mio').createModel('User')
+var User = mio.createModel('User')
   .attr('id', { primary: true })
   .attr('name')
-  .use(ajax, '/users');
+  .use(ajax, '/users', {
+    index: '',
+    count: { url: '/count', method: 'get' },
+    destroy: { url: '/:primary', method: 'DELETE' }
+  });
+
+var Post = mio.createModel('Post').attr('id').attr('user_id').use(ajax);
+
+User.hasMany(Post, {
+  as: 'posts',
+  foreignKey: 'user_id'
+});
 
 describe("AJAX storage plugin", function() {
   it("sets the base url", function() {
@@ -848,5 +860,57 @@ describe("AJAX storage plugin", function() {
       user.remove(function() {});
     });
 
+  });
+
+  describe('Model.adapter.related.findAll()', function() {
+    it('sets query foreign key and executes parent findAll()', function(done) {
+      var user = new User({id: 1});
+      var findAll = Post.adapter.findAll;
+      Post.adapter.findAll = function(query, cb) {
+        Post.adapter.findAll = findAll;
+        expect(query).to.have.property('user_id', 1);
+        done();
+      };
+      user.posts.all(function() {});
+    });
+  });
+
+  describe('Model.adapter.related.count()', function() {
+    it('sets query foreign key and executes parent count()', function(done) {
+      var user = new User({id: 1});
+      var count = Post.adapter.count;
+      Post.adapter.count = function(query, cb) {
+        Post.adapter.count = count;
+        expect(query).to.have.property('user_id', 1);
+        done();
+      };
+      user.posts.count(function() {});
+    });
+  });
+
+  describe('Model.adapter.related.find()', function() {
+    it('sets query foreign key and executes parent find()', function(done) {
+      var user = new User({id: 1});
+      var find = Post.adapter.find;
+      Post.adapter.find = function(query, cb) {
+        Post.adapter.find = find;
+        expect(query).to.have.property('user_id', 1);
+        done();
+      };
+      user.posts.find(function() {});
+    });
+  });
+
+  describe('Model.adapter.related.has()', function() {
+    it('sets query foreign key and executes parent count()', function(done) {
+      var user = new User({id: 1});
+      var count = Post.adapter.count;
+      Post.adapter.count = function(query, cb) {
+        Post.adapter.count = count;
+        expect(query).to.have.property('user_id', 1);
+        cb(null, 1);
+      };
+      user.posts.has(1, done);
+    });
   });
 });
