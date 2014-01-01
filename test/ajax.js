@@ -6,13 +6,13 @@ var superagent = require('superagent');
 var User = mio.createModel('User')
   .attr('id', { primary: true })
   .attr('name')
-  .use(ajax, '/users', {
+  .use(ajax('/users', {
     index: '',
     count: { url: '/count', method: 'get' },
     destroy: { url: '/:primary', method: 'DELETE' }
-  });
+  }));
 
-var Post = mio.createModel('Post').attr('id').attr('user_id').use(ajax);
+var Post = mio.createModel('Post').attr('id').attr('user_id').use(ajax('/'));
 
 User.hasMany(Post, {
   as: 'posts',

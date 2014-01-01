@@ -1,6 +1,6 @@
 {
   "name": "mio-ajax",
-  "version": "0.2.0",
+  "version": "0.5.0",
   "description": "AJAX storage plugin for Mio.",
   "homepage": "https://github.com/alexmingoia/mio-ajax",
   "authors": [
@@ -15,17 +15,8 @@
   ],
   "main": "./lib/ajax.js",
   "dependencies": {
-    "mio": "~0.1.x",
     "superagent": "visionmedia/superagent#382634966a75d2412b7aa4c7fcbe9bfe903599f1",
-    "querystring": "visionmedia/node-querystring#b1b4f33a405b8716260f0b18e02fd59e02face9b",
-    "extend": "segmentio/extend#94235b51c623da606d19c7b70683124578417a5d"
+    "querystring": "visionmedia/node-querystring#b1b4f33a405b8716260f0b18e02fd59e02face9b"
   },
-  "ignore": [
-    "**/.*",
-    "node_modules",
-    "bower_components",
-    "test",
-    "lib-cov"
-  ],
   "license": "MIT"
 }
