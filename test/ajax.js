@@ -28,8 +28,9 @@ describe("AJAX storage plugin", function() {
       var get = superagent.get;
       var superagentApi = {
         abort: function() {return this;},
+        url: 'http://example.com',
         query: function(query) {
-          expect(query).to.eql({});
+          expect(query).to.eql('key=val');
           return this;
         },
         set: function () { return this; },
@@ -46,7 +47,7 @@ describe("AJAX storage plugin", function() {
         };
         retry();
       });
-      User.all(function(err, users) {
+      User.all({ key: 'val' }, function(err, users) {
         if (users) {
           superagent.get = get;
           done();
