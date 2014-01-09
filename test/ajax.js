@@ -407,7 +407,8 @@ describe("AJAX storage plugin", function() {
             error: new Error('test'),
             body: {
               status: 401,
-              message: 'body message'
+              message: 'body message',
+              msg: 'body message'
             }
           });
         }
