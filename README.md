@@ -10,28 +10,27 @@ Provides an AJAX storage plugin for [Mio](https://github.com/mio/mio).
 
 ## Installation
 
-Using [component](https://github.com/component/component/):
-
-```sh
-component install mio/mio-ajax
-```
-
 Using [bower](http://bower.io/):
 
 ```sh
 bower install mio-ajax
 ```
 
+Using [component](https://github.com/component/component/):
+
+```sh
+component install mio/mio-ajax
+```
+
 ## Usage
 
 ```javascript
-var mio  = require('mio'),
-    ajaxSync = require('mio-ajax');
+var User = require('mio').createModel('User');
 
-var User = mio.createModel('User')
+User
   .attr('id', { primary: true })
   .attr('username')
-  .use('browser', 'mio-ajax', 'http://api.example.com/users');
+  .browser(require('mio-ajax')('http://api.example.com/users'));
 ```
 
 The example above would expect the following API:
@@ -64,7 +63,7 @@ var urlMap = {
 Override them if needed:
 
 ```javascript
-User.use('browser', 'mio-ajax', '/people', {
+User.browser(require('mio-ajax')('/people', {
   show:    '/:username',
   update:  '/:username',
   destroy: '/:username'

@@ -1,6 +1,6 @@
 {
   "name": "mio-ajax",
-  "version": "0.5.2",
+  "version": "0.6.0",
   "description": "AJAX storage plugin for Mio.",
   "author": "Alexander Mingoia",
   "repository": {
@@ -11,7 +11,7 @@
   "devDependencies": {
     "superagent": "~0.15.7",
     "querystring": "git://github.com/visionmedia/node-querystring.git#0.6.6",
-    "mio": "~0.5.x",
+    "mio": "~0.7.x",
     "expect.js": "~0.2.0",
     "component": "~0.18.0",
     "mocha": "~1.15.1",
@@ -20,8 +20,9 @@
     "coveralls": "~2.6.0"
   },
   "scripts": {
-    "prepublish": "./node_modules/jscoverage/bin/jscoverage lib lib-cov",
-    "test": "node ./lib/test-runner.js"
+    "coverage": "./node_modules/jscoverage/bin/jscoverage lib lib-cov && JSCOV=1 ./node_modules/mocha/bin/mocha test --recursive --reporter html-cov > coverage.html",
+    "prepublish": "[ ! -z \"$TRAVIS\" ] && ./node_modules/jscoverage/bin/jscoverage lib lib-cov && JSCOV=1 ./node_modules/mocha/bin/mocha test --recursive --reporter mocha-lcov-reporter > ./node_modules/coveralls/bin/coveralls.js",
+    "test": "./node_modules/mocha/bin/mocha --recursive --reporter spec"
   },
   "keywords": [
     "mio",
