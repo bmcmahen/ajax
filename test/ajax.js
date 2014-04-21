@@ -326,7 +326,7 @@ describe("AJAX storage plugin", function() {
 
       var find = User.find;
       User.get = function(extras, cb) {
-        User.stores[0].find.call(User, 1, cb);
+        User.use.find[0].call(User, 1, cb);
         User.get = find;
       };
       User.get(1, function() {
