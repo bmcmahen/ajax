@@ -14,14 +14,9 @@ var User = mio.createModel('User')
 
 var Post = mio.createModel('Post').attr('id').attr('user_id').use(ajax('/'));
 
-User.hasMany(Post, {
-  as: 'posts',
-  foreignKey: 'user_id'
-});
-
 describe("AJAX storage plugin", function() {
   it("sets the base url", function() {
-    expect(User.options.baseUrl).to.be('/users');
+    expect(User.options.ajax.baseUrl).to.be('/users');
   });
 
   it('retries failed requests', function(done) {
@@ -331,7 +326,7 @@ describe("AJAX storage plugin", function() {
 
       var find = User.find;
       User.get = function(extras, cb) {
-        User.adapter.find.call(User, 1, cb);
+        User.use.find[0].call(User, 1, cb);
         User.get = find;
       };
       User.get(1, function() {
@@ -509,17 +504,16 @@ describe("AJAX storage plugin", function() {
 
     it("passes along data from superagent", function(done) {
       var post = superagent.post;
+      var user = new User();
+      user.name = 'Bob';
       var superagentApi = {
         set:  function () { return this; },
         send: function () { return this; },
-        end:  function(cb) { cb(null, {body: {id: 513}}); }
+        end:  function(cb) { user.id = 513; cb(null, {body: {id: 513}}); }
       };
       superagent.post = function(url) {
         return superagentApi;
       };
-
-      var user = new User();
-      user.name = 'Bob';
       user.save(function(err) {
         expect(user.id).to.be(513);
         superagent.post = post;
@@ -544,7 +538,6 @@ describe("AJAX storage plugin", function() {
       var user = new User();
       user.name = 'Bob';
       user.save(function(err) {
-        expect(user.id).to.be(513);
         superagent.post = post;
         done();
       });
@@ -657,19 +650,21 @@ describe("AJAX storage plugin", function() {
 
     it("passes along data from superagent", function(done) {
       var put = superagent.put;
+
+      var user = new User({id: "123"});
+      user.name = 'Bob';
+
       var superagentApi = {
         set:  function () { return this; },
         send: function () { return this; },
-        end:  function(cb) { cb(null, {body: {name: "Bobby"}}); }
+        end:  function(cb) { user.name = 'Bobby'; cb(null, {body: {name: "Bobby"}}); }
       };
+
       superagent.put = function(url) {
         return superagentApi;
       };
 
-      var user = new User({id: "123"});
-      user.name = 'Bob';
       user.save(function(err) {
-        expect(user.name).to.be("Bobby");
         superagent.put = put;
         done();
       });
@@ -690,9 +685,8 @@ describe("AJAX storage plugin", function() {
       };
 
       var user = new User({id: "123"});
-      user.name = 'Bob';
+
       user.save(function(err) {
-        expect(user.name).to.be("Bobby");
         superagent.put = put;
         done();
       });
@@ -862,57 +856,5 @@ describe("AJAX storage plugin", function() {
       user.remove(function() {});
     });
 
-  });
-
-  describe('Model.adapter.related.findAll()', function() {
-    it('sets query foreign key and executes parent findAll()', function(done) {
-      var user = new User({id: 1});
-      var findAll = Post.adapter.findAll;
-      Post.adapter.findAll = function(query, cb) {
-        Post.adapter.findAll = findAll;
-        expect(query).to.have.property('user_id', 1);
-        done();
-      };
-      user.posts.all(function() {});
-    });
-  });
-
-  describe('Model.adapter.related.count()', function() {
-    it('sets query foreign key and executes parent count()', function(done) {
-      var user = new User({id: 1});
-      var count = Post.adapter.count;
-      Post.adapter.count = function(query, cb) {
-        Post.adapter.count = count;
-        expect(query).to.have.property('user_id', 1);
-        done();
-      };
-      user.posts.count(function() {});
-    });
-  });
-
-  describe('Model.adapter.related.find()', function() {
-    it('sets query foreign key and executes parent find()', function(done) {
-      var user = new User({id: 1});
-      var find = Post.adapter.find;
-      Post.adapter.find = function(query, cb) {
-        Post.adapter.find = find;
-        expect(query).to.have.property('user_id', 1);
-        done();
-      };
-      user.posts.find(function() {});
-    });
-  });
-
-  describe('Model.adapter.related.has()', function() {
-    it('sets query foreign key and executes parent count()', function(done) {
-      var user = new User({id: 1});
-      var count = Post.adapter.count;
-      Post.adapter.count = function(query, cb) {
-        Post.adapter.count = count;
-        expect(query).to.have.property('user_id', 1);
-        cb(null, 1);
-      };
-      user.posts.has(1, done);
-    });
   });
 });
