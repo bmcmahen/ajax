@@ -16,7 +16,6 @@
     "mio": "~0.7.x",
     "expect.js": "~0.2.0",
     "gulp": "^3.6.1",
-    "mocha-lcov-reporter": "0.0.1",
     "mocha": "^1.18.2",
     "vinyl-source-stream": "^0.1.1",
     "gulp-coveralls": "^0.1.2",
