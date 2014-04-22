@@ -2,7 +2,7 @@
   "name": "mio-ajax",
   "version": "0.7.0",
   "description": "AJAX storage plugin for Mio.",
-  "repo": "alexmingoia/mio-ajax",
+  "repo": "mio/ajax",
   "dependencies": {
     "visionmedia/superagent": "*",
     "visionmedia/node-querystring": "*"
