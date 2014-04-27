@@ -1,8 +1,9 @@
 language: node_js
 node_js:
-- "0.10"
-- "0.9"
-
+- '0.10'
+- '0.9'
+after_script:
+- "./node_modules/gulp/bin/gulp.js coveralls"
 env:
   global:
-    secure: aMUGdi8e2aPN44jH/l8ck4i7WYksL58zp92Cc2ovg1kvfNdHzC5iNdOaIPa6JRZEXuunIfh2tHIITwhY2cXZs7JD/kE1JE0Q7CJ3LaV/6e1O5EmfVmi4Z1MQGC5VQU7H1MjICJ/RrnIyo1Z8Byaw4C4eUnX9vCXLGdnd5NsNntE=
+    secure: GpjMUozJRh2rCSBg/viqp+/1r9rSN5NrFdBnSouSIhUh3ooGYNxReD+i0HAnUiLhljSNuxi5rEP6X4cfXv4mhJ7SmztFcgA+ay+kgr7tgeoeUarZhQAlywd/y3aQXypiK+JaSU3tLRYw09QxykkqVx/sb9XGMneCq3XD99S6MDU=
