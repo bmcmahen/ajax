@@ -324,11 +324,9 @@ describe("AJAX storage plugin", function() {
         return superagentApi;
       };
 
-      var find = User.find;
-      User.get = function(extras, cb) {
-        User.use.find[0].call(User, 1, cb);
-        User.get = find;
-      };
+      User.before('find', function(query, next) {
+        next(null, new User({ id: 1 }));
+      });
       User.get(1, function() {
         superagent.get = get;
         done();
