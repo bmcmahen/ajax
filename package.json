@@ -9,7 +9,7 @@
   },
   "main": "./lib/ajax",
   "dependencies": {
-    "superagent": "^0.17.0",
+    "superagent": "^0.18.0",
     "qs": "^0.6.6"
   },
   "devDependencies": {

@@ -22,6 +22,8 @@ Using [component](https://github.com/component/component/):
 component install mio/ajax
 ```
 
+When using as a global the module is available via `window.mio.ajax`.
+
 ## Usage
 
 ```javascript
