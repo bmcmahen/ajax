@@ -4,6 +4,7 @@
   "description": "AJAX storage plugin for Mio.",
   "repo": "mio/ajax",
   "dependencies": {
+    "mio/mio": "*",
     "visionmedia/superagent": "*",
     "visionmedia/node-querystring": "*"
   },

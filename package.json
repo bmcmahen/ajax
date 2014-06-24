@@ -9,11 +9,11 @@
   },
   "main": "./lib/ajax",
   "dependencies": {
+    "mio": "^0.7.6",
     "superagent": "^0.18.0",
     "qs": "^0.6.6"
   },
   "devDependencies": {
-    "mio": "~0.7.x",
     "expect.js": "~0.2.0",
     "gulp": "^3.6.1",
     "mocha": "^1.18.2",
