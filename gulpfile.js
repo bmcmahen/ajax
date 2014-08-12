@@ -1,4 +1,5 @@
 var buffer = require('vinyl-buffer')
+  , Browserify = require('browserify')
   , clean = require('gulp-clean')
   , coveralls = require('gulp-coveralls')
   , gulp = require('gulp')
@@ -51,6 +52,17 @@ gulp.task('coverage', ['instrument'], function() {
     .pipe(gulp.dest('./'));
 });
 
+gulp.task('standalone', function() {
+  var bundler = new Browserify({
+    standalone: 'mio.ajax'
+  });
+
+  bundler.add('./lib/ajax.js');
+  bundler.bundle()
+    .pipe(source('mio-ajax.js'))
+    .pipe(gulp.dest('dist'));
+});
+
 gulp.task('instrument', function() {
   return gulp.src('lib/**.js')
     .pipe(instrument())
@@ -69,7 +81,8 @@ gulp.task('clean', function() {
   return gulp.src([
     'coverage.html',
     'lib-cov',
-    'npm-debug.log'
+    'npm-debug.log',
+    'dist'
   ], {
     read: false
   })

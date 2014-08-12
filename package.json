@@ -14,15 +14,16 @@
     "qs": "^0.6.6"
   },
   "devDependencies": {
+    "browserify": "^5.9.3",
     "expect.js": "~0.2.0",
     "gulp": "^3.6.1",
-    "mocha": "^1.18.2",
-    "vinyl-source-stream": "^0.1.1",
-    "gulp-coveralls": "^0.1.2",
     "gulp-clean": "^0.2.4",
+    "gulp-coveralls": "^0.1.2",
     "gulp-instrument": "^0.1.0",
+    "mocha": "^1.18.2",
     "mocha-lcov-reporter": "0.0.1",
-    "vinyl-buffer": "0.0.0"
+    "vinyl-buffer": "0.0.0",
+    "vinyl-source-stream": "^0.1.1"
   },
   "scripts": {
     "coverage": "./node_modules/gulp/bin/gulp.js coverage",

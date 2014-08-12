@@ -22,6 +22,13 @@ Using [component](https://github.com/component/component/):
 component install mio/ajax
 ```
 
+A standalone build is available at `dist/mio-ajax.js`:
+
+```html
+<script src="https://raw.githubusercontent.com/mio/mio/master/lib/model.js"></script>
+<script src="https://raw.githubusercontent.com/mio/ajax/master/dist/mio-ajax.js"></script>
+```
+
 When using as a global the module is available via `window.mio.ajax`.
 
 ## Usage
