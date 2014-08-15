@@ -1,6 +1,6 @@
 {
   "name": "mio-ajax",
-  "version": "0.7.5",
+  "version": "0.7.6",
   "description": "AJAX storage plugin for Mio.",
   "homepage": "https://github.com/mio/ajax",
   "authors": [
