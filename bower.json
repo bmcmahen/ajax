@@ -17,7 +17,7 @@
   "dependencies": {
     "mio": "^0.7.6",
     "superagent": "visionmedia/superagent#0.18.0",
-    "qs": "visionmedia/node-querystring#0.6.6"
+    "qs": "visionmedia/node-querystring#1.2.1"
   },
   "ignore": [
     "coverage.html",
