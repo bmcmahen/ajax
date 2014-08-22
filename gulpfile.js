@@ -4,8 +4,12 @@ var buffer = require('vinyl-buffer')
   , coveralls = require('gulp-coveralls')
   , gulp = require('gulp')
   , instrument = require('gulp-instrument')
+  , jshint = require('gulp-jshint')
+  , mochaPhantomJS = require('gulp-mocha-phantomjs')
+  , rename = require('gulp-rename')
   , source = require('vinyl-source-stream')
-  , spawn = require('child_process').spawn
+  , stylish = require('jshint-stylish')
+  , spawn = require('child_process').spawn;
 
 gulp.task('coveralls', ['instrument'], function(done) {
   if (!process.env.COVERALLS_REPO_TOKEN) {
@@ -16,7 +20,7 @@ gulp.task('coveralls', ['instrument'], function(done) {
 
   var err = '';
 
-  var mocha = spawn('node_modules/mocha/bin/mocha', [
+  var mocha = spawn('node_modules/gulp-mocha-phantomjs/node_modules/mocha-phantomjs/node_modules/mocha/bin/mocha', [
     'test', '--reporter', 'mocha-lcov-reporter'
   ]);
 
@@ -45,22 +49,11 @@ gulp.task('coveralls', ['instrument'], function(done) {
 gulp.task('coverage', ['instrument'], function() {
   process.env.JSCOV=1;
 
-  return spawn('node_modules/mocha/bin/mocha', [
+  return spawn('node_modules/gulp-mocha-phantomjs/node_modules/mocha-phantomjs/node_modules/mocha/bin/mocha', [
     'test', '--reporter', 'html-cov'
   ]).stdout
     .pipe(source('coverage.html'))
     .pipe(gulp.dest('./'));
-});
-
-gulp.task('standalone', function() {
-  var bundler = new Browserify({
-    standalone: 'mio.ajax'
-  });
-
-  bundler.add('./lib/ajax.js');
-  bundler.bundle()
-    .pipe(source('mio-ajax.js'))
-    .pipe(gulp.dest('dist'));
 });
 
 gulp.task('instrument', function() {
@@ -69,12 +62,42 @@ gulp.task('instrument', function() {
     .pipe(gulp.dest('lib-cov'));
 });
 
-gulp.task('test', function() {
-  return spawn('node_modules/mocha/bin/mocha', [
-    'test', '--reporter', 'spec'
-  ], {
-    stdio: 'inherit'
+gulp.task('standalone', function() {
+  var bundler = new Browserify({
+    standalone: 'mio.ajax'
   });
+  bundler.add('./lib/ajax.js');
+  bundler.ignore('../lib-cov/ajax');
+  return bundler.bundle()
+    .pipe(source('mio-ajax.js'))
+    .pipe(gulp.dest('dist'));
+});
+
+gulp.task('browserify-tests', function() {
+  var bundler = new Browserify();
+  bundler.add('./test/ajax.js');
+  bundler.ignore('../lib-cov/ajax');
+  return bundler.bundle()
+    .pipe(source('tests.js'))
+    .pipe(gulp.dest('dist'));
+});
+
+gulp.task('test', ['browserify-tests'], function () {
+  return gulp.src('test/ajax.html')
+    .pipe(mochaPhantomJS({
+      mocha: {
+        timeout: 6000,
+        ignoreLeaks: false,
+        ui: 'bdd',
+        reporter: 'spec'
+      }
+    }));
+});
+
+gulp.task('jshint', function () {
+  return gulp.src(['lib/**/*.js', 'test/**/*.js'])
+    .pipe(jshint())
+    .pipe(jshint.reporter(stylish));
 });
 
 gulp.task('clean', function() {
@@ -82,9 +105,11 @@ gulp.task('clean', function() {
     'coverage.html',
     'lib-cov',
     'npm-debug.log',
-    'dist'
+    'dist/tests.js'
   ], {
     read: false
   })
   .pipe(clean());
 });
+
+gulp.task('default', ['jshint', 'test', 'watch']);

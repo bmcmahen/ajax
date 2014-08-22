@@ -1,7 +1,7 @@
-var ajax = process.env.JSCOV ? require('../lib-cov/ajax') : require('../lib/ajax');
-var expect = require('expect.js');
-var mio = require('mio');
+var expect = require('chai').expect;
 var superagent = require('superagent');
+var mio = require('mio');
+var ajax = process.env.JSCOV ? require('../lib-cov/ajax') : require('../lib/ajax');
 
 var User = mio.createModel('User')
   .attr('id', { primary: true })
@@ -16,7 +16,7 @@ var Post = mio.createModel('Post').attr('id').attr('user_id').use(ajax('/'));
 
 describe("AJAX storage plugin", function() {
   it("sets the base url", function() {
-    expect(User.options.ajax.baseUrl).to.be('/users');
+    expect(User.options.ajax.baseUrl).to.equal('/users');
   });
 
   it('retries failed requests', function(done) {
@@ -32,7 +32,7 @@ describe("AJAX storage plugin", function() {
         end: function(cb) { cb(new Error('test')); }
       };
       superagent.get = function(url) {
-        expect(url).to.be('/users');
+        expect(url).to.equal('/users');
         return superagentApi;
       };
       User.once('ajax error', function(error, retry) {
@@ -62,7 +62,7 @@ describe("AJAX storage plugin", function() {
         end: function(cb) { cb(null, [{}]); }
       };
       superagent.get = function(url) {
-        expect(url).to.be('/users');
+        expect(url).to.equal('/users');
         return superagentApi;
       };
 
@@ -83,7 +83,7 @@ describe("AJAX storage plugin", function() {
         end: function(cb) { cb(null, {}); }
       };
       superagent.get = function(url) {
-        expect(url).to.be('/users');
+        expect(url).to.equal('/users');
         return superagentApi;
       };
 
@@ -107,7 +107,7 @@ describe("AJAX storage plugin", function() {
         return superagentApi;
       };
       User.all(function(err, body) {
-        expect(err).to.be(null);
+        expect(err).to.equal(null);
         superagent.get = get;
         done();
       });
@@ -127,7 +127,7 @@ describe("AJAX storage plugin", function() {
       };
 
       User.all(function(err, body) {
-        expect(err).to.be(null);
+        expect(err).to.equal(null);
         expect(body).to.have.length(2);
         superagent.get = get;
         done();
@@ -146,7 +146,7 @@ describe("AJAX storage plugin", function() {
       };
 
       User.all(function(err, body) {
-        expect(err).to.be(true);
+        expect(err).to.equal(true);
         superagent.get = get;
         done();
       });
@@ -203,7 +203,7 @@ describe("AJAX storage plugin", function() {
         end: function(cb) { cb(null, [{}]); }
       };
       superagent.get = function(url) {
-        expect(url).to.be('/users/count');
+        expect(url).to.equal('/users/count');
         return superagentApi;
       };
 
@@ -224,7 +224,7 @@ describe("AJAX storage plugin", function() {
         end: function(cb) { cb(null, {}); }
       };
       superagent.get = function(url) {
-        expect(url).to.be('/users/count');
+        expect(url).to.equal('/users/count');
         return superagentApi;
       };
 
@@ -248,7 +248,7 @@ describe("AJAX storage plugin", function() {
         return superagentApi;
       };
       User.count(function(err, body) {
-        expect(err).to.be(null);
+        expect(err).to.equal(null);
         superagent.get = get;
         done();
       });
@@ -266,7 +266,7 @@ describe("AJAX storage plugin", function() {
       };
 
       User.count(function(err, body) {
-        expect(err).to.be(true);
+        expect(err).to.equal(true);
         superagent.get = get;
         done();
       });
@@ -320,7 +320,7 @@ describe("AJAX storage plugin", function() {
         end: function(cb) { cb(null, {}); }
       };
       superagent.get = function(url) {
-        expect(url).to.be('/users/1');
+        expect(url).to.equal('/users/1');
         return superagentApi;
       };
 
@@ -345,7 +345,7 @@ describe("AJAX storage plugin", function() {
       };
 
       User.get({ id: 1, post_id: 2 }, function(err, body) {
-        expect(err).to.be(null);
+        expect(err).to.equal(null);
         expect(body).to.have.property('id', 1);
         superagent.get = get;
         done();
@@ -363,7 +363,7 @@ describe("AJAX storage plugin", function() {
       };
 
       User.get(1, function(err, body) {
-        expect(err).to.be(null);
+        expect(err).to.equal(null);
         expect(body).to.have.property('id', 1);
         superagent.get = get;
         done();
@@ -383,9 +383,9 @@ describe("AJAX storage plugin", function() {
         return superagentApi;
       };
       User.get(1, function(err, user) {
-        expect(err).to.be(null);
-        expect(user).to.be.a(User);
-        expect(user.primary).to.be(1);
+        expect(err).to.equal(null);
+        expect(user).to.be.an.instanceOf(User);
+        expect(user.primary).to.equal(1);
         superagent.get = get;
         done();
       });
@@ -425,7 +425,7 @@ describe("AJAX storage plugin", function() {
         end: function(cb) { cb(null, { body: {id: 1} }); }
       };
       superagent.get = function(url) {
-        expect(url).to.be('/users/1');
+        expect(url).to.equal('/users/1');
         return superagentApi;
       };
       User.once('ajax response', function(res) {
@@ -445,7 +445,7 @@ describe("AJAX storage plugin", function() {
         end: function(cb) { cb(null, { body: {id: 1} }); }
       };
       superagent.get = function(url) {
-        expect(url).to.be('/users/1');
+        expect(url).to.equal('/users/1');
         return superagentApi;
       };
       User.once('ajax request', function(req) {
@@ -466,7 +466,7 @@ describe("AJAX storage plugin", function() {
         end:  function(cb) { cb(null, {}); }
       };
       superagent.post = function(url) {
-        expect(url).to.be('/users');
+        expect(url).to.equal('/users');
         return superagentApi;
       };
 
@@ -513,7 +513,7 @@ describe("AJAX storage plugin", function() {
         return superagentApi;
       };
       user.save(function(err) {
-        expect(user.id).to.be(513);
+        expect(user.id).to.equal(513);
         superagent.post = post;
         done();
       });
@@ -555,7 +555,7 @@ describe("AJAX storage plugin", function() {
       var user = new User();
       user.name = 'Bob';
       user.save(function(err) {
-        expect(err).to.be(true);
+        expect(err).to.equal(true);
         superagent.post = post;
         done();
       });
@@ -612,7 +612,7 @@ describe("AJAX storage plugin", function() {
         end:  function(cb) { cb(null, {}); }
       };
       superagent.put = function(url) {
-        expect(url).to.be('/users/1');
+        expect(url).to.equal('/users/1');
         return superagentApi;
       };
 
@@ -704,7 +704,7 @@ describe("AJAX storage plugin", function() {
       var user = new User({id: "123"});
       user.name = 'Bob';
       user.save(function(err) {
-        expect(err).to.be(true);
+        expect(err).to.equal(true);
         superagent.put = put;
         done();
       });
@@ -725,7 +725,7 @@ describe("AJAX storage plugin", function() {
       user.name = 'Bob';
       User.once('ajax response', function(res) {
         superagent.put = put;
-        expect(res.body.name).to.be("Bobby");
+        expect(res.body.name).to.equal("Bobby");
         done();
       });
       user.save(function () {});
@@ -762,7 +762,7 @@ describe("AJAX storage plugin", function() {
         end:  function(cb) { cb(null, {}); }
       };
       superagent.del = function(url, cb) {
-        expect(url).to.be('/users/123');
+        expect(url).to.equal('/users/123');
         return superagentApi;
       };
 
@@ -784,7 +784,7 @@ describe("AJAX storage plugin", function() {
         end:  function(cb) { cb(null, {}); }
       };
       superagent.del = function(url, cb) {
-        expect(url).to.be('/users/123');
+        expect(url).to.equal('/users/123');
         return superagentApi;
       };
 
@@ -808,7 +808,7 @@ describe("AJAX storage plugin", function() {
 
       var user = new User({id: "123"});
       user.remove(function(err) {
-        expect(err).to.be(true);
+        expect(err).to.equal(true);
         superagent.del = del;
         done();
       });
