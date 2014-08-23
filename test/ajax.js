@@ -311,7 +311,7 @@ describe("AJAX storage plugin", function() {
     });
   });
 
-  describe(".find()", function() {
+  describe(".findOne()", function() {
 
     it("does a GET request to the base url with the ID", function(done) {
       var get = superagent.get;
@@ -324,7 +324,7 @@ describe("AJAX storage plugin", function() {
         return superagentApi;
       };
 
-      User.before('find', function(query, next) {
+      User.before('findOne', function(query, next) {
         next(null, new User({ id: 1 }));
       });
       User.get(1, function() {
